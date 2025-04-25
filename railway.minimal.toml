@@ -6,6 +6,7 @@ name = "facemap"
 path = "backend"
 dockerfile_path = "Dockerfile.minimal"
 internal_port = 5000
+start_command = "uvicorn main:app --host 0.0.0.0 --port 5000"
 healthcheck_path = "/"
 healthcheck_timeout_seconds = 10
 healthcheck_interval_seconds = 5
