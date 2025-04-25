@@ -43,10 +43,6 @@ ENV HOST="::"
 # This ensures that the application properly prioritizes IPv6
 RUN echo "precedence ::ffff:0:0/96 100" >> /etc/gai.conf
 
-# Add healthcheck with fallback
-HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
-  CMD curl -f http://[::1]:5000/ || curl -f http://127.0.0.1:5000/ || exit 1
-
 # Expose port (both IPv4 and IPv6)
 EXPOSE 5000/tcp
 
