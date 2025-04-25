@@ -4,11 +4,18 @@ WORKDIR /app
 
 # Install system dependencies for OpenCV and Mediapipe
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxrender1 \
     libxext6 \
+    libx11-6 \
+    libxrandr2 \
+    libxxf86vm1 \
+    libxi6 \
+    libxfixes3 \
+    libxcursor1 \
+    libgles2 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -18,6 +25,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
+
+# Set environment variable to specify headless OpenCV
+ENV PYTHONUNBUFFERED=1
+ENV OPENCV_VIDEOIO_PRIORITY_MSMF=0
 
 # CMD to run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"] 

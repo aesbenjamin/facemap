@@ -29,6 +29,11 @@ face_mesh = mp_face_mesh.FaceMesh(
     min_detection_confidence=0.5
 )
 
+@app.get("/")
+async def health_check():
+    """Health check endpoint for monitoring"""
+    return {"status": "ok"}
+
 @app.post("/analyze-face")
 async def analyze_face(file: UploadFile = File(...)):
     try:
