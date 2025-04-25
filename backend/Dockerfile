@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     libxfixes3 \
     libxcursor1 \
     libgles2 \
+    curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -32,8 +33,12 @@ ENV OPENCV_VIDEOIO_PRIORITY_MSMF=0
 ENV MEDIAPIPE_DISABLE_GPU=1
 ENV PORT=5000
 
+# Add healthcheck
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:5000/ || exit 1
+
 # Expose the port
 EXPOSE 5000
 
-# CMD to run the application
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT} 
+# Simple startup command
+CMD uvicorn main:app --host 0.0.0.0 --port 5000 
