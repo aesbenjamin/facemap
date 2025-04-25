@@ -27,6 +27,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
+# Make run script executable
+RUN chmod +x run.sh
+
 # Set environment variable to specify headless OpenCV
 ENV PYTHONUNBUFFERED=1
 ENV OPENCV_VIDEOIO_PRIORITY_MSMF=0
@@ -40,5 +43,5 @@ HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
 # Expose the port
 EXPOSE 5000
 
-# Simple startup command
-CMD uvicorn main:app --host 0.0.0.0 --port 5000 
+# Use the startup script to handle initialization
+CMD ["./run.sh"] 

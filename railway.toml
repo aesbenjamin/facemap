@@ -2,14 +2,19 @@
 builder = "nixpacks"
 
 [[services]]
-name = "backend"
+name = "facemap"
 path = "backend"
 dockerfile_path = "Dockerfile"
+internal_port = 5000
+healthcheck_path = "/"
+healthcheck_timeout_seconds = 120
+healthcheck_interval_seconds = 15
 
 [[services]]
-name = "frontend"
+name = "focused-youthfulness"
 path = "frontend"
 dockerfile_path = "Dockerfile"
+internal_port = 80
 envs = [
-    { name = "BACKEND_URL", value = "${backend.RAILWAY_PUBLIC_DOMAIN}" }
+    { name = "BACKEND_URL", value = "https://facemap-production.up.railway.app" }
 ] 
