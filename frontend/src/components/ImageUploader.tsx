@@ -78,6 +78,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       const file = event.target.files[0];
       setSelectedFile(file);
       
+	  console.log(selectedFile);
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
       

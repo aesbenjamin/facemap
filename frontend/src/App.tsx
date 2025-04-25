@@ -12,9 +12,7 @@ import {
   AppBar,
   Toolbar,
   IconButton,
-  Avatar,
   Stack,
-  useTheme,
   Fade,
   Fab,
   Tooltip
@@ -26,10 +24,7 @@ import {
   FaceRetouchingNatural as FaceIcon,
   Menu as MenuIcon
 } from '@mui/icons-material';
-import ImageUploader from './components/ImageUploader';
-import AnalysisResults from './components/AnalysisResults';
-import AlertMessage from './components/AlertMessage';
-import AppDrawer from './components/AppDrawer';
+import { ImageUploader, AnalysisResults, AlertMessage, AppDrawer } from './components';
 import api from './services/api';
 
 // Define tema personalizado
@@ -158,6 +153,7 @@ function App() {
     setFile(uploadedFile);
     setIsLoading(true);
     setError(null);
+	console.log(file);
     
     const formData = new FormData();
     formData.append('file', uploadedFile);

@@ -9,8 +9,6 @@ import {
   Grid,
   Paper,
   Divider,
-  Chip,
-  Tooltip,
   LinearProgress,
   useTheme,
   Avatar,
@@ -19,7 +17,6 @@ import {
   ListItemIcon,
   ListItemText,
   Badge,
-  alpha
 } from '@mui/material';
 import {
   SentimentSatisfiedAlt as HappyIcon,
@@ -27,7 +24,6 @@ import {
   SentimentNeutral as NeutralIcon,
   Face as FaceIcon,
   Psychology as PsychologyIcon,
-  ShowChart as ChartIcon,
   Timeline as TimelineIcon,
   Colorize as ColorizeIcon,
   ViewInAr as ViewInArIcon
