@@ -12,7 +12,7 @@ RUN npm ci
 COPY . .
 
 # Set environment variables with defaults
-ARG BACKEND_URL=http://facemap
+ARG BACKEND_URL=https://facemap
 ENV REACT_APP_API_URL=${BACKEND_URL}
 
 # Build the app
@@ -51,8 +51,7 @@ RUN echo 'server { \
 }' > /etc/nginx/conf.d/default.conf
 
 # Add healthcheck
-HEALTHCHECK --interval=5s --timeout=3s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:80/health || exit 1
+
 
 # Expose port
 EXPOSE 80
