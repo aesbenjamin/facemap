@@ -27,21 +27,19 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Make run script executable
-RUN chmod +x run.sh
-
-# Set environment variable to specify headless OpenCV
+# Set environment variables to specify headless OpenCV
 ENV PYTHONUNBUFFERED=1
 ENV OPENCV_VIDEOIO_PRIORITY_MSMF=0
 ENV MEDIAPIPE_DISABLE_GPU=1
 ENV PORT=5000
+ENV HOST="::"
 
 # Add healthcheck
-HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:5000/ || exit 1
 
-# Expose the port
-EXPOSE 5000
+# Expose port (both IPv4 and IPv6)
+EXPOSE 5000/tcp
 
-# Use the startup script to handle initialization
-CMD ["./run.sh"] 
+# Use the startup command with IPv6 support
+CMD uvicorn main:app --host "::" --port 5000

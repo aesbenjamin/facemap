@@ -2,14 +2,17 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
-    "dockerfilePath": "frontend/Dockerfile.minimal"
+    "dockerfilePath": "frontend/Dockerfile"
   },
   "deploy": {
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10,
     "numReplicas": 1,
-    "healthcheckPath": "/",
+    "healthcheckPath": "/health",
     "healthcheckTimeout": 30,
-    "port": 80
+    "healthcheckInterval": 5,
+    "healthcheckRetries": 3,
+    "port": 80,
+    "ipv6": true
   }
-} 
+}

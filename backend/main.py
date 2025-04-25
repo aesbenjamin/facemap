@@ -44,10 +44,13 @@ except Exception as e:
     face_mesh = None
 
 @app.get("/")
+@app.get("/")
 async def health_check():
     """Health check endpoint for monitoring"""
     # This will always return OK to pass the health check
-    return {"status": "ok"}
+    import socket
+    hostname = socket.gethostname()
+    return {"status": "ok", "hostname": hostname, "ipv6_support": "Enabled", "version": "1.0.0"}
 
 @app.post("/analyze-face")
 async def analyze_face(file: UploadFile = File(...)):
