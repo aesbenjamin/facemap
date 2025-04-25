@@ -9,25 +9,16 @@ declare global {
   }
 }
 
-// Determinar a URL da API baseado no ambiente
-// 1. Usar a config de runtime (prioridade 1)
-// 2. Usar a variável de ambiente do build (prioridade 2)
-// 3. Usar o endereço interno do Railway se estiver em produção (prioridade 3)
-// 4. Fallback para localhost (desenvolvimento)
-let API_URL = 'http://localhost:5000'; // Default para desenvolvimento
+// No ambiente de produção, devemos usar o proxy reverso através do nosso próprio servidor
+// em vez de tentar acessar diretamente o backend via HTTP
+let API_URL = '/api'; // Usar o proxy definido no nginx.conf
 
-if (window.ENV?.API_URL) {
-  // 1. Configuração de runtime tem prioridade
-  API_URL = window.ENV.API_URL;
-  console.log('Usando API URL da configuração de runtime:', API_URL);
-} else if (process.env.REACT_APP_API_URL) {
-  // 2. Variável de ambiente do build
-  API_URL = process.env.REACT_APP_API_URL;
-  console.log('Usando API URL da variável de ambiente do build:', API_URL);
-} else if (process.env.NODE_ENV === 'production') {
-  // 3. Endereço interno do Railway
-  API_URL = 'http://facemap.railway.internal:5000';
-  console.log('Usando endereço interno do Railway:', API_URL);
+// Em desenvolvimento, podemos usar o endereço direto
+if (process.env.NODE_ENV === 'development') {
+  API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  console.log('Ambiente de desenvolvimento, usando URL direto:', API_URL);
+} else {
+  console.log('Ambiente de produção, usando proxy reverso em: /api');
 }
 
 console.log('API URL configurada:', API_URL);
