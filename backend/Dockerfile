@@ -29,6 +29,7 @@ COPY . .
 # Set environment variable to specify headless OpenCV
 ENV PYTHONUNBUFFERED=1
 ENV OPENCV_VIDEOIO_PRIORITY_MSMF=0
+ENV MEDIAPIPE_DISABLE_GPU=1
 
 # CMD to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"] 
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"] 

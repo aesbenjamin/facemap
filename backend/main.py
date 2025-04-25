@@ -8,6 +8,10 @@ from typing import List, Dict
 import io
 from PIL import Image
 import math
+import os
+
+# Force MediaPipe to use CPU
+os.environ["MEDIAPIPE_DISABLE_GPU"] = "1"
 
 app = FastAPI()
 
