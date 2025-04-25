@@ -1,0 +1,15 @@
+[build]
+builder = "nixpacks"
+
+[[services]]
+name = "backend"
+path = "backend"
+dockerfile_path = "Dockerfile"
+
+[[services]]
+name = "frontend"
+path = "frontend"
+dockerfile_path = "Dockerfile"
+envs = [
+    { name = "BACKEND_URL", value = "${backend.RAILWAY_PUBLIC_DOMAIN}" }
+] 

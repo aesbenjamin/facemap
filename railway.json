@@ -10,7 +10,9 @@
     "restartPolicyMaxRetries": 10,
     "numReplicas": 1,
     "healthcheckPath": "/",
-    "healthcheckTimeout": 30,
-    "startCommand": "uvicorn main:app --host 0.0.0.0 --port 5000"
+    "healthcheckTimeout": 60,
+    "healthcheckInterval": 15,
+    "healthcheckRetries": 5,
+    "port": 5000
   }
 } 

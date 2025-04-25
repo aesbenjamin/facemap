@@ -30,6 +30,10 @@ COPY . .
 ENV PYTHONUNBUFFERED=1
 ENV OPENCV_VIDEOIO_PRIORITY_MSMF=0
 ENV MEDIAPIPE_DISABLE_GPU=1
+ENV PORT=5000
+
+# Expose the port
+EXPOSE 5000
 
 # CMD to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"] 
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT} 

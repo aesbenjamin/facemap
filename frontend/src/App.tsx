@@ -30,7 +30,7 @@ import ImageUploader from './components/ImageUploader';
 import AnalysisResults from './components/AnalysisResults';
 import AlertMessage from './components/AlertMessage';
 import AppDrawer from './components/AppDrawer';
-import axios from 'axios';
+import api from './services/api';
 
 // Define tema personalizado
 const getTheme = (mode: 'light' | 'dark') => createTheme({
@@ -163,7 +163,7 @@ function App() {
     formData.append('file', uploadedFile);
     
     try {
-      const response = await axios.post('http://localhost:5000/analyze-face', formData, {
+      const response = await api.post('/analyze-face', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
