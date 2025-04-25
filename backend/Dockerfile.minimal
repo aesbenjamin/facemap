@@ -1,0 +1,19 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Only install minimal dependencies
+RUN pip install --no-cache-dir fastapi uvicorn
+
+# Copy only the minimal application
+COPY main_minimal.py main.py
+
+# Set environment variables
+ENV PORT=5000
+ENV PYTHONUNBUFFERED=1
+
+# Expose port
+EXPOSE 5000
+
+# Simple startup command
+CMD uvicorn main:app --host 0.0.0.0 --port 5000 
