@@ -10,6 +10,7 @@ from PIL import Image
 import math
 import os
 import logging
+import socket
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -18,15 +19,26 @@ logger = logging.getLogger(__name__)
 # Force MediaPipe to use CPU
 os.environ["MEDIAPIPE_DISABLE_GPU"] = "1"
 
+# Log network information at startup for debugging
+logger.info(f"Starting server with hostname: {socket.gethostname()}")
+try:
+    addrs = socket.getaddrinfo(socket.gethostname(), None)
+    for addr in addrs:
+        family, type, proto, canonname, sockaddr = addr
+        logger.info(f"Address: {sockaddr}, Family: {family}")
+except Exception as e:
+    logger.error(f"Error getting address info: {e}")
+
 app = FastAPI()
 
-# Configure CORS
+# Configure CORS - make sure we accept ALL origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Initialize MediaPipe Face Mesh with error handling
@@ -43,14 +55,52 @@ except Exception as e:
     logger.error(f"Error initializing MediaPipe: {str(e)}")
     face_mesh = None
 
-@app.get("/")
+
 @app.get("/")
 async def health_check():
     """Health check endpoint for monitoring"""
-    # This will always return OK to pass the health check
     import socket
+    
+    # Get hostname (should be "facemap" in Railway)
     hostname = socket.gethostname()
-    return {"status": "ok", "hostname": hostname, "ipv6_support": "Enabled", "version": "1.0.0"}
+    logger.info(f"Health check called, hostname: {hostname}")
+    
+    # Get network interfaces information
+    network_info = {}
+    try:
+        # Try to get all addresses including IPv6
+        addrinfo = socket.getaddrinfo(hostname, None)
+        
+        for addr in addrinfo:
+            family, type, proto, canonname, sockaddr = addr
+            family_name = "IPv4" if family == socket.AF_INET else "IPv6" if family == socket.AF_INET6 else f"Other({family})"
+            if family_name not in network_info:
+                network_info[family_name] = []
+            network_info[family_name].append(sockaddr[0])
+        
+        logger.info(f"Network info: {network_info}")
+    except Exception as e:
+        logger.error(f"Error getting network info: {e}")
+        network_info["error"] = str(e)
+    
+    # Simple check for IPv6 support
+    ipv6_support = "Checking..."
+    try:
+        # Try to create a dummy IPv6 socket to confirm support
+        socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+        ipv6_support = "Supported"
+        logger.info("IPv6 is supported")
+    except Exception as e:
+        ipv6_support = f"Not supported: {str(e)}"
+        logger.error(f"IPv6 not supported: {e}")
+    
+    return {
+        "status": "ok", 
+        "hostname": hostname,
+        "ipv6": ipv6_support,
+        "network_info": network_info,
+        "version": "1.0.0"
+    }
 
 @app.post("/analyze-face")
 async def analyze_face(file: UploadFile = File(...)):

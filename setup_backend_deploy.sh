@@ -27,6 +27,9 @@ RUN apt-get update && apt-get install -y \
     libxcursor1 \
     libgles2 \
     curl \
+    iputils-ping \
+    net-tools \
+    dnsutils \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -56,8 +59,58 @@ CMD uvicorn main:app --host "::" --port 5000
 EOF
 
 # Atualizar o arquivo main.py para ter suporte a IPv6 no health check
-echo "Atualizando o endpoint de health check no main.py"
-sed -i '/async def health_check/,/return {"status": "ok"}/c\@app.get("/")\nasync def health_check():\n    """Health check endpoint for monitoring"""\n    # This will always return OK to pass the health check\n    import socket\n    hostname = socket.gethostname()\n    return {"status": "ok", "hostname": hostname, "ipv6_support": "Enabled", "version": "1.0.0"}' backend/main.py
+echo "Atualizando o endpoint de health check no main.py para verificar IPv6"
+cat > backend/health_check.py << 'EOF'
+@app.get("/")
+async def health_check():
+    """Health check endpoint for monitoring"""
+    import socket
+    import subprocess
+    import json
+    from fastapi.responses import JSONResponse
+    
+    # Get basic host info
+    hostname = socket.gethostname()
+    
+    # Check if IPv6 is available at the OS level
+    has_ipv6 = False
+    ipv6_addresses = []
+    
+    try:
+        # Try to get all addresses including IPv6
+        addrinfo = socket.getaddrinfo(hostname, None)
+        
+        # Filter for IPv6 addresses
+        for addr in addrinfo:
+            if addr[0] == socket.AF_INET6:
+                has_ipv6 = True
+                ipv6_addresses.append(addr[4][0])
+    except Exception as e:
+        pass
+    
+    # Try to get local IPv6 addresses
+    try:
+        # This will work on Linux
+        output = subprocess.check_output("ip -6 addr show | grep inet6 | awk '{print $2}'", shell=True).decode('utf-8')
+        if output.strip():
+            has_ipv6 = True
+            ipv6_addresses = output.strip().split('\n')
+    except:
+        pass
+        
+    return {
+        "status": "ok", 
+        "hostname": hostname,
+        "ipv6_support": "Available" if has_ipv6 else "Not available",
+        "ipv6_addresses": ipv6_addresses,
+        "version": "1.0.0"
+    }
+EOF
+
+# Inserir o código do health check no main.py
+sed -i '/async def health_check/,/return {"status": "ok"}/d' backend/main.py
+sed -i '/^# Initialize MediaPipe Face Mesh with error handling/r backend/health_check.py' backend/main.py
+rm backend/health_check.py
 
 # Criar config do Railway para o backend
 echo "Criando configuração do Railway para o backend"
@@ -88,8 +141,8 @@ echo "Configuração do backend completa!"
 echo "========================================="
 echo ""
 echo "As configurações do backend foram atualizadas:"
-echo " - Dockerfile atualizado com suporte a IPv6"
-echo " - main.py configurado com healthcheck aprimorado"
+echo " - Dockerfile atualizado com suporte a IPv6 e ferramentas de rede"
+echo " - main.py configurado com healthcheck que verifica ativamente IPv6"
 echo " - railway.json criado para configuração do serviço"
 echo ""
 echo "Para fazer o deploy do backend no Railway:"
@@ -97,5 +150,5 @@ echo "1. Navegue até a pasta backend: cd backend"
 echo "2. Inicialize o projeto no Railway: railway init"
 echo "3. Faça o deploy: railway up"
 echo ""
-echo "Importante: Como estamos usando o main.py completo, o build"
-echo "pode demorar mais e o healthcheck tem um timeout mais longo." 
+echo "Importante: A rota / agora retorna informações detalhadas sobre o suporte a IPv6,"
+echo "incluindo os endereços IPv6 disponíveis no container." 

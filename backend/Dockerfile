@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies for OpenCV and Mediapipe
+# Install system dependencies for OpenCV, Mediapipe and network tools
 RUN apt-get update && apt-get install -y \
     libgl1 \
     libglib2.0-0 \
@@ -17,6 +17,11 @@ RUN apt-get update && apt-get install -y \
     libxcursor1 \
     libgles2 \
     curl \
+    net-tools \
+    iproute2 \
+    iputils-ping \
+    dnsutils \
+    procps \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -27,19 +32,24 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Set environment variables to specify headless OpenCV
+# Set environment variables to specify headless OpenCV and networking
 ENV PYTHONUNBUFFERED=1
 ENV OPENCV_VIDEOIO_PRIORITY_MSMF=0
 ENV MEDIAPIPE_DISABLE_GPU=1
 ENV PORT=5000
 ENV HOST="::"
 
-# Add healthcheck
+# Fix for IPv6-only network issue with Python socket resolution
+# This ensures that the application properly prioritizes IPv6
+RUN echo "precedence ::ffff:0:0/96 100" >> /etc/gai.conf
+
+# Add healthcheck with fallback
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:5000/ || exit 1
+  CMD curl -f http://[::1]:5000/ || curl -f http://127.0.0.1:5000/ || exit 1
 
 # Expose port (both IPv4 and IPv6)
 EXPOSE 5000/tcp
 
 # Use the startup command with IPv6 support
-CMD uvicorn main:app --host "::" --port 5000
+# Add verbose logging to see exactly what's happening
+CMD uvicorn main:app --host "::" --port 5000 --log-level debug
